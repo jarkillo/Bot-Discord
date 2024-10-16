@@ -122,6 +122,10 @@ async def play_next(ctx):
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             url2 = info['formats'][0]['url']
+            # para windows
+            #ctx.voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg/bin/ffmpeg.exe", source=url2),
+
+            # para linux
             ctx.voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg/bin/ffmpeg.exe", source=url2),
                                   after=lambda e: bot.loop.create_task(play_next(ctx)))
             await ctx.send(f"Reproduciendo ahora: {info['title']}")
