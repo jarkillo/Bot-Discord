@@ -88,8 +88,8 @@ async def play(ctx, url: str):
         return
 
     ffmpeg_options = {
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-    'options': '-vn -ar 48000 -b:a 128k'
+        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+        'options': '-vn -ar 48000 -b:a 128k'
     }
 
     await asyncio.sleep(1)
@@ -131,24 +131,6 @@ async def play_next(ctx):
     else:
         await ctx.send("La cola está vacía.")
 
-
-async def play_next(ctx):
-    """Reproducir la siguiente canción en la cola"""
-    if len(song_queue) > 0:
-        url = song_queue.pop(0)
-        with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            url2 = info['formats'][0]['url']
-            # para windows
-            #ctx.voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg/bin/ffmpeg.exe", source=url2),
-
-            # para linux
-            ctx.voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=url2),
-                                  after=lambda e: bot.loop.create_task(play_next(ctx)))
-            await ctx.send(f"Reproduciendo ahora: {info['title']}")
-    else:
-        await ctx.send("La cola está vacía.")
-
 @bot.command()
 async def queue(ctx):
     """Mostrar las canciones en la cola"""
@@ -179,6 +161,7 @@ async def sintetika_mix(ctx):
     """Reproducir la lista de reproducción Sintetika Mix"""
     url = "https://www.youtube.com/playlist?list=PLgCeG97g1zB9jqqaT4zDFPJFq08G1Ddn9"
     
+    # Verificar si el bot ya está en un canal de voz y, si no, conectarlo
     if not ctx.voice_client:
         if ctx.author.voice:
             channel = ctx.author.voice.channel
@@ -190,21 +173,21 @@ async def sintetika_mix(ctx):
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
+            
             if 'entries' not in info:
                 await ctx.send("No se pudieron obtener las canciones de la lista de reproducción.")
                 return
-            
-            # Añadir las canciones de la playlist una por una
+
+            # Añadir cada URL de la playlist a la cola
             for entry in info['entries']:
                 if 'url' in entry:
                     song_queue.append(entry['url'])
-            
             await ctx.send(f"Lista de reproducción 'Sintetika Mix' añadida con {len(info['entries'])} canciones.")
 
     except Exception as e:
         await ctx.send(f"Error al añadir la lista de reproducción: {str(e)}")
     
-    # Inicia la reproducción si el bot no está reproduciendo nada actualmente
+    # Iniciar la reproducción si no se está reproduciendo nada
     if not ctx.voice_client.is_playing():
         await play_next(ctx)
 
