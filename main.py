@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 import asyncio
 
-load_dotenv()
+load_dotenv("token.env")
 token = os.getenv('DISCORD_TOKEN')
 
 # Solo incluir los intents necesarios
