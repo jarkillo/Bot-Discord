@@ -88,8 +88,8 @@ async def play(ctx, url: str):
         return
 
     ffmpeg_options = {
-        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        'options': '-vn -ar 48000 -maxrate 128k -bufsize 1M'
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+    'options': '-vn -ar 48000 -b:a 128k'
     }
 
     await asyncio.sleep(1)
