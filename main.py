@@ -126,7 +126,7 @@ async def play_next(ctx):
             #ctx.voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg/bin/ffmpeg.exe", source=url2),
 
             # para linux
-            ctx.voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg/bin/ffmpeg.exe", source=url2),
+            ctx.voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=url2),
                                   after=lambda e: bot.loop.create_task(play_next(ctx)))
             await ctx.send(f"Reproduciendo ahora: {info['title']}")
     else:
