@@ -161,18 +161,30 @@ async def stop(ctx):
 async def sintetika_mix(ctx):
     """Reproducir la lista de reproducción Sintetika Mix"""
     url = "https://www.youtube.com/playlist?list=PLgCeG97g1zB9jqqaT4zDFPJFq08G1Ddn9"
+    
+    # Si no está conectado, únete al canal de voz automáticamente
     if not ctx.voice_client:
-        await ctx.send("Primero necesito unirme a un canal de voz. Usa ?join")
+        if ctx.author.voice:
+            channel = ctx.author.voice.channel
+            await channel.connect()
+        else:
+            await ctx.send("Tienes que estar en un canal de voz para que el bot se conecte.")
+            return
+
+    # Extrae la información de la lista de reproducción
+    try:
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            for entry in info.get('entries', []):
+                if 'url' in entry:
+                    song_queue.append(entry['url'])
+            await ctx.send(f"Lista de reproducción 'Sintetika Mix' añadida con {len(info['entries'])} canciones.")
+    except Exception as e:
+        await ctx.send(f"Error al procesar la lista de reproducción: {str(e)}")
         return
 
-    with YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-        for entry in info['entries']:
-            if 'webpage_url' in entry:
-                song_queue.append(entry['webpage_url'])
-        await ctx.send(f"Lista de reproducción 'Sintetika Mix' añadida.")
-
-    if not ctx.voice_client.is_playing():
+    # Si no está reproduciendo, comienza a reproducir
+    if not ctx.voice_client.is_playing() and song_queue:
         await play_next(ctx)
 
 # Ejecutar el bot con el token
